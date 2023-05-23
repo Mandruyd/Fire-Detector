@@ -10,6 +10,8 @@ RUN apt update
 
 RUN apt install python3-opencv -y
 
+RUN pip install python-multipart
+
 COPY . .
 
 CMD ["uvicorn", "main:app", "--proxy-headers", "--host", "0.0.0.0", "--port", "80"]

@@ -28,7 +28,7 @@ const UploadButton = () => {
         setIsLoading(true);
 
         try {
-            const response = await axios.post("http://localhost:8000/detect_fire/", formData, {
+            const response = await axios.post(`http://${process.env.NEXT_PUBLIC_BACKEND_SERVICE_IP}/detect_fire/`, formData, {
                 headers: {"Content-Type": "multipart/form-data"},
                 responseType: 'blob',
             });

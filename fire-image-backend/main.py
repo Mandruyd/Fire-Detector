@@ -7,6 +7,7 @@ import tempfile
 from PIL import Image
 import io
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.responses import Response
 
 app = FastAPI()
 
@@ -21,28 +22,29 @@ app.add_middleware(
 
 model = torch.hub.load('ultralytics/yolov5', 'custom', path='best.pt')
 
+def get_image_from_bytes(binary_image, max_size=1024):
+    input_image = Image.open(io.BytesIO(binary_image)).convert("RGB")
+    width, height = input_image.size
+    resize_factor = min(max_size / width, max_size / height)
+    resized_image = input_image.resize((
+        int(input_image.width * resize_factor),
+        int(input_image.height * resize_factor)
+    ))
+    return resized_image
+
 @app.post("/detect_fire/")
-async def detect_fire(file: UploadFile = File(...)):
+async def detect_fire(file: bytes = File(...)):
     try:
         # Read the image from the request
-        image_data = await file.read()
-        image = Image.open(io.BytesIO(image_data))
-        
-        # Convert the image to OpenCV format
-        image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
-
-        # Pass the image to the YOLO model
+        image = get_image_from_bytes(file)
         results = model(image)
-
-        # Render the results back to an image
-        rendered_image = results.render()[0]
-
-        # Save the resulting image
-        output_path = tempfile.mktemp(suffix=".jpg")
-        cv2.imwrite(output_path, rendered_image)
-
-        # Return the image
-        return FileResponse(path=output_path, media_type='image/jpeg')
+        results.render()  # updates results.imgs with boxes and labels
+        for img in results.ims:
+            bytes_io = io.BytesIO()
+            img_base64 = Image.fromarray(img)
+            img_base64.save(bytes_io, format="jpeg")
+        return Response(content=bytes_io.getvalue(),
+            media_type="image/jpeg")
         
     except Exception as err:
         raise HTTPException(status_code=500, detail=str(err))

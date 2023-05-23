@@ -1,0 +1,11 @@
+version: '3.9'
+services:
+  backend:
+    build: ./fire-image-backend/
+    ports:
+      - "8000:80"
+  frontend:
+    build: ./fire-image-frontend/
+    ports:
+      - "8080:3000"
+    

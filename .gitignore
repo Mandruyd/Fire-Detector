@@ -1,5 +1,6 @@
 .venv/
 __pycache__/
+.env
 
 # dependencies
 /fire-image-frontend/node_modules/*

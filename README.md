@@ -40,3 +40,7 @@ docker-compose up
 The frontend should now be running at <host_ip>:8080. You can upload an image through the main page, and the application will respond with an edited image highlighting the presence and location of fire.
 
 The code used for training the model can be fully seen in the Jupyter notebook found in the backend folder.
+
+## Disclaimer
+
+This project is not meant for production, it is only a proof of concept as I was trying to gasp my knowledge on the tehnology stack used on this project.
